@@ -6,7 +6,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace AdventOfCode.Exercises.Day01;
 internal class Day01 {
 
-    internal Uri filePath = new Uri(new Uri(AppDomain.CurrentDomain.BaseDirectory), "Exercises\\Day01\\Data.txt");
+    internal Uri filePath = new(new Uri(AppDomain.CurrentDomain.BaseDirectory), "Exercises\\Day01\\Data.txt");
 
     internal enum Numbers {
         one = 1,
@@ -117,9 +117,9 @@ internal class Day01 {
 
                 if (!firstNumberFound) {
                     foreach (string numberName in Enum.GetNames(typeof(Numbers))) {
-                        var subLine = line.Substring(i);
+                        var subLine = line[i..];
                         if (subLine.StartsWith(numberName)) {
-                            if (Enum.TryParse(typeof(Numbers), numberName, true, out object dd)) {
+                            if (Enum.TryParse(typeof(Numbers), numberName, true, out var dd)) {
                                 firstNumber = (int)((Numbers)dd);
                             }
                             firstNumberFound = true;
@@ -137,9 +137,9 @@ internal class Day01 {
 
                 if (!lastNumberFound) {
                     foreach (string numberName in Enum.GetNames(typeof(Numbers))) {
-                        var subLine = line.Substring(0, line.Length - i);
+                        var subLine = line[..^i];
                         if (subLine.EndsWith(numberName)) {
-                            if (Enum.TryParse(typeof(Numbers), numberName, true, out object dd)) {
+                            if (Enum.TryParse(typeof(Numbers), numberName, true, out var dd)) {
                                 lastNumber = (int)((Numbers)dd);
                             }
                             lastNumberFound = true;
@@ -163,7 +163,7 @@ internal class Day01 {
     }
 
     #region Helpers
-    internal (bool isNumber, int number) GetNumberFromFigure(string line, int index) {
+    internal static (bool isNumber, int number) GetNumberFromFigure(string line, int index) {
 
         int number = -1;
         bool isNumber = false;
@@ -176,7 +176,7 @@ internal class Day01 {
         return (isNumber, number);
     }
 
-    internal (bool isNUmber, int number) GetNumberFromText(string line, int index, Direction direction) {
+    internal static (bool isNUmber, int number) GetNumberFromText(string line, int index, Direction direction) {
 
         int number = -1;
         bool isNumber = false;
@@ -186,11 +186,11 @@ internal class Day01 {
             string subLine;
             switch (direction) {
                 case Direction.StartsWith:
-                    subLine = line.Substring(index);
+                    subLine = line[index..];
                     isNumber = subLine.StartsWith(numberName);
                     break;
                 case Direction.EndsWith:
-                    subLine = line.Substring(0, index + 1);
+                    subLine = line[..(index + 1)];
                     isNumber = subLine.EndsWith(numberName);
                     break;
             }
@@ -203,7 +203,7 @@ internal class Day01 {
         return (isNumber, number);
     }
 
-    internal int ConvertNumberTextToInt(string numberName) {
+    internal static int ConvertNumberTextToInt(string numberName) {
 
         return (int)((Numbers)Enum.Parse(typeof(Numbers), numberName, true));
     }

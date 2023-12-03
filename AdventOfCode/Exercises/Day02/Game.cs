@@ -2,5 +2,5 @@
 
 public class Game {
     public int Id { get; init; }
-    public List<Set> Sets { get; init; }
+    public List<Set> Sets { get; init; } = default!;
 };
