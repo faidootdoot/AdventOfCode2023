@@ -8,7 +8,7 @@ internal class Day01 {
 
     internal Uri filePath = new Uri(new Uri(AppDomain.CurrentDomain.BaseDirectory), "Exercises\\Day01\\Data.txt");
 
-    internal enum Numbers : int {
+    internal enum Numbers {
         one = 1,
         two = 2,
         three = 3,
@@ -35,7 +35,6 @@ internal class Day01 {
             var firstNumber = line.First(c => Char.IsNumber(c));
             var lastNumber = line.Last(c => Char.IsNumber(c));
             int number = int.Parse($"{firstNumber}{lastNumber}");
-            //Console.WriteLine($"Line is {line}: firstNumber is {firstNumber}: lastNumber is {lastNumber}: number is {number}: sum is {sum}");
             sum += number;
         }
         Console.WriteLine($"Sum is {sum}");
@@ -123,7 +122,6 @@ internal class Day01 {
                             if (Enum.TryParse(typeof(Numbers), numberName, true, out object dd)) {
                                 firstNumber = (int)((Numbers)dd);
                             }
-                            //i += numberName.Length;
                             firstNumberFound = true;
                             break;
                         }
