@@ -38,9 +38,7 @@ public class Day04 {
     public void RunPart2() {
 
         List<int> instances = new();
-        foreach (var card in this.cards) {
-            instances.Add(1);
-        }
+        this.cards.ForEach(x => { instances.Add(1); });
 
         for (int cardIndex = 0; cardIndex < this.cards.Count; cardIndex++) {
 
