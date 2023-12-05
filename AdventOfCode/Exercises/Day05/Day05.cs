@@ -35,14 +35,7 @@ public class Day05 {
 
         foreach (var seed in this.seeds) {
 
-            var soil = this.GetDestinationFromMap(seed, this.seedToSoilMap);
-            var fertilizer = this.GetDestinationFromMap(soil, this.soilToFertilizerMap);
-            var water = this.GetDestinationFromMap(fertilizer, this.fertilizerToWaterMap);
-            var light = this.GetDestinationFromMap(water, this.waterToLightMap);
-            var temperature = this.GetDestinationFromMap(light, this.lightToTemperatureMap);
-            var humidity = this.GetDestinationFromMap(temperature, this.temperatureToHumidityMap);
-            var location = this.GetDestinationFromMap(humidity, this.humidityToLocationMap);
-
+            var location = this.GetLocationFromSeed(seed);
             locations.Add(location);
         }
         var minLocation = locations.Min();
@@ -52,12 +45,32 @@ public class Day05 {
 
     public void RunPart2() {
 
-        
+        List<long> locations = new();
+        int index = 0;
+        while (index < this.seeds.Count) {
+            var seedRangeStart = this.seeds[index];
+            var seedRangeLength = this.seeds[++index];
+            index++;
+
+            for (int i = 0; i < seedRangeLength; i++) {
+                var seed = seedRangeStart + i;
+
+                var location = this.GetLocationFromSeed(seed);
+                locations.Add(location);
+            }
+        }
+        var minLocation = locations.Min();
+
         Console.WriteLine("PART 2");
+        Console.WriteLine($"Lowest location is {minLocation}");
     }
 
     #region Helpers
 
+    /// <summary>
+    /// Read all the input data to lists
+    /// </summary>
+    /// <param name="lines"></param>
     private void ReadDataIntoMaps(IEnumerable<string> lines) {
         List<Map>? map = null;
 
@@ -98,6 +111,10 @@ public class Day05 {
             }
         }
     }
+
+    /// <summary>
+    /// Order all teh maps to be in ascending order so that it is easier to read
+    /// </summary>
     private void OrderAllMaps() {
         this.seedToSoilMap = this.seedToSoilMap.OrderBy(m => m.SourceRangeStart).ToList();
         this.soilToFertilizerMap = this.soilToFertilizerMap.OrderBy(m => m.SourceRangeStart).ToList();
@@ -108,6 +125,12 @@ public class Day05 {
         this.humidityToLocationMap = this.humidityToLocationMap.OrderBy(m => m.SourceRangeStart).ToList();
     }
 
+    /// <summary>
+    /// Get the destination from the map
+    /// </summary>
+    /// <param name="sourceValue"></param>
+    /// <param name="dataList"></param>
+    /// <returns></returns>
     private long GetDestinationFromMap(long sourceValue, List<Map> dataList) {
 
         var match = dataList.FirstOrDefault(map => sourceValue >= map.SourceRangeStart && sourceValue < map.SourceRangeStart + map.RangeLength - 1);
@@ -120,6 +143,24 @@ public class Day05 {
             destination = sourceValue - match!.SourceRangeStart + match.DestinationRangeStart;
         }
         return destination;
+    }
+
+    /// <summary>
+    /// Get the Location from the seed
+    /// </summary>
+    /// <param name="seed"></param>
+    /// <returns></returns>
+    private long GetLocationFromSeed(long seed) {
+
+        var soil = this.GetDestinationFromMap(seed, this.seedToSoilMap);
+        var fertilizer = this.GetDestinationFromMap(soil, this.soilToFertilizerMap);
+        var water = this.GetDestinationFromMap(fertilizer, this.fertilizerToWaterMap);
+        var light = this.GetDestinationFromMap(water, this.waterToLightMap);
+        var temperature = this.GetDestinationFromMap(light, this.lightToTemperatureMap);
+        var humidity = this.GetDestinationFromMap(temperature, this.temperatureToHumidityMap);
+        var location = this.GetDestinationFromMap(humidity, this.humidityToLocationMap);
+
+        return location;
     }
     #endregion
 }
