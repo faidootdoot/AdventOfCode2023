@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Reflection;
 
-int day = 4;
+int day = 5;
 
 string className = $"Day{day.ToString().PadLeft(2, '0')}";
 Console.WriteLine(className);
