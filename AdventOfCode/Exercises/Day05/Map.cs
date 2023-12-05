@@ -8,9 +8,7 @@ public class Map {
         this.RangeLength = rangeLength;
     }
 
-    public long DestinationRangeStart { get; set; }
-    public long SourceRangeStart { get; set; }
-    public long RangeLength { get; set; }
-
-
+    public long DestinationRangeStart { get; set; } = 0;
+    public long SourceRangeStart { get; set; } = 0;
+    public long RangeLength { get; set; } = 0;
 }
