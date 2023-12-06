@@ -33,36 +33,41 @@ public class Day05 {
 
         List<long> locations = new();
 
+        long minimumLocation = 0;
         foreach (var seed in this.seeds) {
 
             var location = this.GetLocationFromSeed(seed);
-            locations.Add(location);
+            if (seed == this.seeds.First()) {
+                minimumLocation = location;
+            }
+            minimumLocation = location < minimumLocation ? location : minimumLocation;
+            //locations.Add(location);
         }
-        var minLocation = locations.Min();
+        //var minLocation = locations.Min();
         Console.WriteLine("PART 1");
-        Console.WriteLine($"Lowest location is {minLocation}");
+        Console.WriteLine($"Lowest location is {minimumLocation}");
     }
 
     public void RunPart2() {
 
-        List<long> locations = new();
         int index = 0;
+        long minimumLocation = this.GetLocationFromSeed(this.seeds[0]);
         while (index < this.seeds.Count) {
+
             var seedRangeStart = this.seeds[index];
             var seedRangeLength = this.seeds[++index];
             index++;
 
             for (int i = 0; i < seedRangeLength; i++) {
-                var seed = seedRangeStart + i;
 
+                var seed = seedRangeStart + i;
                 var location = this.GetLocationFromSeed(seed);
-                locations.Add(location);
+                minimumLocation = location < minimumLocation ? location : minimumLocation;
             }
         }
-        var minLocation = locations.Min();
 
         Console.WriteLine("PART 2");
-        Console.WriteLine($"Lowest location is {minLocation}");
+        Console.WriteLine($"Lowest location is {minimumLocation}");
     }
 
     #region Helpers
