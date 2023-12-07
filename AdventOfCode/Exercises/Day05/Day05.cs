@@ -41,9 +41,7 @@ public class Day05 {
                 minimumLocation = location;
             }
             minimumLocation = location < minimumLocation ? location : minimumLocation;
-            //locations.Add(location);
         }
-        //var minLocation = locations.Min();
         Console.WriteLine("PART 1");
         Console.WriteLine($"Lowest location is {minimumLocation}");
     }
@@ -63,6 +61,7 @@ public class Day05 {
                 var seed = seedRangeStart + i;
                 var location = this.GetLocationFromSeed(seed);
                 minimumLocation = location < minimumLocation ? location : minimumLocation;
+                Console.WriteLine($"{location}\t{minimumLocation}");
             }
         }
 
