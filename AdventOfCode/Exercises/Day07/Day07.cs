@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static AdventOfCode.Exercises.Day07.Constants;
 
 namespace AdventOfCode.Exercises.Day07;
 public class Day07 {
@@ -52,7 +53,7 @@ public class Day07 {
 
     public void Print() {
         foreach (var hand in this.hands) {
-            Console.WriteLine($"{hand.Cards.PadRight(10)}{hand.Bid.ToString().PadRight(10)}{hand.TypeOfHand}");
+            Console.WriteLine($"{hand.Cards.PadRight(10)}{hand.Bid.ToString().PadRight(10)}{(HandType)hand.TypeOfHand}");
         }
     }
 

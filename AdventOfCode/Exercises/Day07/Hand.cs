@@ -10,7 +10,8 @@ public class Hand {
         this.Bid = bid;
         this.CalculateCardValues();
         this.CalculateCardsCount();
-        this.CalculateHandType();
+        //this.CalculateHandTypePart1();
+        this.CalculateHandTypePart2();
     }
 
     public Dictionary<string, int> CardsCount { get; set; } = new();
@@ -19,24 +20,24 @@ public class Hand {
     public int Bid { get; init; }
     public int TypeOfHand { get; set; } = default!;
 
-    private void CalculateCardValues() {
+    public void CalculateCardValues() {
 
         foreach (var character in this.Cards) {
             this.CardValues.Add(this.GetCardValue(character));
         }
     }
-    private int GetCardValue(char character) {
+    public int GetCardValue(char character) {
         return character switch {
             'A' => 14,
             'K' => 13,
             'Q' => 12,
-            'J' => 11,
+            'J' => 1, //11
             'T' => 10,
             _ => int.Parse(character.ToString()),
         };
     }
 
-    private void CalculateCardsCount() {
+    public void CalculateCardsCount() {
 
         var distinctCards = this.Cards.Distinct().ToList();
         foreach (var character in distinctCards) {
@@ -47,7 +48,7 @@ public class Hand {
         }
     }
 
-    private void CalculateHandType() {
+    public void CalculateHandTypePart1() {
 
         if (this.CardsCount.Any(x => x.Value == 5)) {
             this.TypeOfHand = (int)(HandType.FiveOfAKind);
@@ -65,6 +66,41 @@ public class Hand {
             this.TypeOfHand = (int)(HandType.TwoPair);
         }
         else if (this.CardsCount.Count(x => x.Value == 2) == 1 && this.CardsCount.Count(x => x.Value == 1) == 3) {
+            this.TypeOfHand = (int)(HandType.OnePair);
+        }
+        else if (this.Cards.Distinct().Count() == 5) {
+            this.TypeOfHand = (int)(HandType.HighCard);
+        }
+    }
+    public void CalculateHandTypePart2() {
+
+        int jackCount = 0;
+        if (this.CardsCount.Where(x => x.Key == "J") is not null) {
+            jackCount = this.CardsCount.FirstOrDefault(x => x.Key == "J").Value;
+        }
+
+        this.CardsCount.Remove("J");
+        if (jackCount == 5) {
+            this.TypeOfHand = (int)(HandType.FiveOfAKind);
+            return;
+        }
+
+        if (this.CardsCount.Any(x => x.Value + jackCount == 5)) {
+            this.TypeOfHand = (int)(HandType.FiveOfAKind);
+        }
+        else if (this.CardsCount.Any(x => x.Value + jackCount == 4)) {
+            this.TypeOfHand = (int)(HandType.FourOfAKind);
+        }
+        else if (this.CardsCount.Any(x => x.Value + jackCount == 3) && this.CardsCount.Count == 2) {
+            this.TypeOfHand = (int)(HandType.FullHouse);
+        }
+        else if (this.CardsCount.Any(x => x.Value + jackCount == 3) && this.CardsCount.Count == 3) {
+            this.TypeOfHand = (int)(HandType.ThreeOfAKind);
+        }
+        else if (this.CardsCount.Count(x => x.Value + jackCount == 2) == 2) {
+            this.TypeOfHand = (int)(HandType.TwoPair);
+        }
+        else if (this.CardsCount.Any(x => x.Value + jackCount == 2)) {
             this.TypeOfHand = (int)(HandType.OnePair);
         }
         else if (this.Cards.Distinct().Count() == 5) {

@@ -18,5 +18,4 @@ public static class Constants {
         OnePair = 2,
         HighCard = 1
     }
-
 }
