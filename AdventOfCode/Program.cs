@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 
-int day = 8;
+int day = 9;
 
 string className = $"Day{day.ToString().PadLeft(2, '0')}";
 Console.WriteLine(className);

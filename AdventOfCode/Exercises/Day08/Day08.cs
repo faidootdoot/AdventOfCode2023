@@ -1,21 +1,12 @@
-﻿using AdventOfCode.Exercises.Day07;
-using FluentAssertions.Equivalency;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdventOfCode.Exercises.Day08;
+﻿namespace AdventOfCode.Exercises.Day08;
 public class Day08 {
     private readonly string instructions = "LRRRLRRRLRRLRLRRLRLRRLRRLRLLRRRLRLRLRRRLRRRLRLRLRLLRRLLRRLRRRLLRLRRRLRLRLRRRLLRLRRLRRRLRLRRRLLRLRRLRRRLRRLRRLRLRRLRRRLRLRRRLRRLLRRLRRLRLRRRLRRLRRRLRRRLRLRRLRLRRRLRLRRLRRLRRRLRRRLRRRLLRRLRRRLRLRLRLRRRLRLRLRRLRRRLRRRLRRLRRLLRLRRLLRLRRLRRLLRLLRRRLLRRLLRRLRRLRLRLRRRLLRRLRRRR";
 
     private readonly Uri filePath = new(new Uri(AppDomain.CurrentDomain.BaseDirectory), "Exercises\\Day08\\Data.txt");
     private readonly Dictionary<string, LeftRightNode> Nodes = new();
-    private readonly string StartNodeName = default!;
-    private readonly string destinationNodeName = default!;
+    private readonly string StartNodeName = "AAA";
+    private readonly string destinationNodeName = "ZZZ";
+    private readonly List<string> nodeNameList = default!;
 
     public Day08() {
 
@@ -26,8 +17,7 @@ public class Day08 {
             var nodeName = dataArray[0].Trim();
             var leftRightNode = dataArray[1].Replace("(", "").Replace(")", "").Split(",");
             this.Nodes[nodeName] = new LeftRightNode(leftRightNode[0].Trim(), leftRightNode[1].Trim());
-            this.StartNodeName = "AAA";//this.Nodes.First().Key;
-            this.destinationNodeName = "ZZZ";//this.Nodes.Last().Key;
+            this.nodeNameList = this.Nodes.Where(node => node.Key.EndsWith("A")).Select(node => node.Key).ToList();
         }
     }
 
@@ -65,40 +55,40 @@ public class Day08 {
         Console.WriteLine($"Steps is {steps}");
     }
 
-    public void RunPart2_1() {
+    public void RunPart2() {
 
         // nodes that end with a
-        List<string> nodeList = this.Nodes.Where(node => node.Key.EndsWith("A")).Select(node => node.Key).ToList();
 
         bool destinationArrived = false;
-        int steps = 0;
+        long steps = 0;
 
         while (!destinationArrived) {
 
             foreach (var direction in this.instructions) {
 
                 steps++;
-                Task[] taskArray = new Task[nodeList.Count - 1];
-                for (int i = 0; i < taskArray.Length; i++) {
-                    taskArray[i] = Task.Factory.StartNew(() => {
-                        var node = this.Nodes[nodeList[i]];
-                        string nodeName = string.Empty;
 
-                        if (direction == 'L') {
-                            nodeName = node.LeftNodeName;
-                        }
-                        else if (direction == 'R') {
+                //this.nodeNameList.AsParallel().ForAll(nodeName => {
 
-                            nodeName = node.RightNodeName;
-                        }
-                        Console.WriteLine($"{steps.ToString().PadRight(5)}{direction.ToString().PadRight(3)}{nodeName}");
-                        nodeList[i] = nodeName;
-                    });
-                }
-                Task.WaitAll(taskArray);
+                //    var index = this.GetListPosition(nodeName);
+                //    var node = this.Nodes[nodeName];
+                //    this.nodeNameList[index] = (direction == 'L') ? node.LeftNodeName : node.RightNodeName;
+                //});
+
+
+                Console.WriteLine("Check:");
+                this.nodeNameList.ForEach(nodeName => Console.WriteLine(nodeName));
+
+                Parallel.ForEach(this.nodeNameList, nodeName => {
+
+                    var index = this.GetListPosition(nodeName);
+                    var node = this.Nodes[nodeName];
+
+                    this.nodeNameList[index] = (direction == 'L') ? node.LeftNodeName : node.RightNodeName;
+                });
 
                 // Do all nodes end in Z
-                if (nodeList.Count(nodeName => nodeName.EndsWith("Z")) == nodeList.Count) {
+                if (this.nodeNameList.Count(nodeName => nodeName.EndsWith("Z")) == this.nodeNameList.Count) {
                     destinationArrived = true;
                     break;
                 }
@@ -111,7 +101,34 @@ public class Day08 {
     }
 
 
-    public void RunPart2() {
+    private int GetListPosition(string nodeName) {
+
+        int index = 0;
+        for (int i = 0; i < this.nodeNameList.Count; i++) {
+            if (this.nodeNameList[i] == nodeName) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    private void MoveLeftRight(int index, char direction) {
+
+        var node = this.Nodes[this.nodeNameList[index]];
+        string nodeName = string.Empty;
+
+        if (direction == 'L') {
+            nodeName = node.LeftNodeName;
+        }
+        else if (direction == 'R') {
+
+            nodeName = node.RightNodeName;
+        }
+        this.nodeNameList[index] = nodeName;
+    }
+
+
+    public void RunPart2_1() {
 
         // nodes that end with a
         List<string> nodeList = this.Nodes.Where(node => node.Key.EndsWith("A")).Select(node => node.Key).ToList();
@@ -127,10 +144,6 @@ public class Day08 {
 
                 for (int i = 0; i < nodeList.Count; i++) {
 
-                    if (nodeList[i].EndsWith("Z")) {
-                        continue;
-                    }
-
                     var node = this.Nodes[nodeList[i]];
                     string nodeName = string.Empty;
 
@@ -142,7 +155,7 @@ public class Day08 {
                         nodeName = node.RightNodeName;
                     }
 
-                    Console.WriteLine($"{steps.ToString().PadRight(5)}{direction.ToString().PadRight(3)}{nodeName}");
+                    //Console.WriteLine($"{steps.ToString().PadRight(5)}{direction.ToString().PadRight(3)}{nodeName}");
                     nodeList[i] = nodeName;
                 }
 
@@ -151,12 +164,12 @@ public class Day08 {
                     destinationArrived = true;
                     break;
                 }
-                //else {
-                //    if (nodeList.Count(nodeName => nodeName.EndsWith("Z")) > 1) {
-                //        Console.WriteLine("Check:");
-                //        nodeList.ForEach(nodeName => Console.WriteLine(nodeName));
-                //    }
-                //}
+                else {
+                    if (nodeList.Count(nodeName => nodeName.EndsWith("Z")) > 1) {
+                        Console.WriteLine("Check:");
+                        nodeList.ForEach(nodeName => Console.WriteLine(nodeName));
+                    }
+                }
                 ////else {
                 ////    nodeList.ForEach(nodeName => Console.WriteLine(nodeName));
                 ////}
