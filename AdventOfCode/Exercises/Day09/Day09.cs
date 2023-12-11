@@ -47,41 +47,44 @@ public class Day09 {
                 // Calculate the previous sequence
                 row[0] = row.ElementAt(1) - previousRowFirstNumber;
 
-            if (rowIndex == 0) {
-                totalLast += row.Last();
-                totalPrevious += row[0];
+                if (rowIndex == 0) {
+                    totalLast += row.Last();
+                    totalPrevious += row[0];
+                }
             }
+
+            Print(data.ListOfNumberLists);
         }
 
-        Print(data.ListOfNumberLists);
-    }
-
-    Console.WriteLine($"PART 1");
+        Console.WriteLine($"PART 1");
         Console.WriteLine($"Last total is {totalLast}");
         Console.WriteLine($"Previous total is {totalPrevious}");
 
     }
 
-public void RunPart2() { }
+    public void RunPart2() {
+        Console.WriteLine("Nothing to do here");
 
-public List<int> CalculateDifferencesList(List<int> history) {
+    }
 
-    var differences = history.Take(history.Count - 1).Select((v, i) => history[i + 1] - v).ToList();
+    public List<int> CalculateDifferencesList(List<int> history) {
 
-    //Console.WriteLine("");
-    //history.ForEach(history => Console.Write(history.ToString().PadRight(5)));
-    //Console.WriteLine("");
-    //differences.ForEach(diff => Console.Write($"{diff} "));
+        var differences = history.Take(history.Count - 1).Select((v, i) => history[i + 1] - v).ToList();
 
-    return differences;
-}
+        //Console.WriteLine("");
+        //history.ForEach(history => Console.Write(history.ToString().PadRight(5)));
+        //Console.WriteLine("");
+        //differences.ForEach(diff => Console.Write($"{diff} "));
 
-public static void Print(List<int> listOfNumbers) {
-    listOfNumbers.ForEach(diff => Console.Write($"{diff} "));
-    Console.WriteLine("");
-}
+        return differences;
+    }
 
-public static void Print(List<List<int>> deepListOfNumbers) {
-    deepListOfNumbers.ForEach(diffList => Print(diffList));
-}
+    public static void Print(List<int> listOfNumbers) {
+        listOfNumbers.ForEach(diff => Console.Write($"{diff} "));
+        Console.WriteLine("");
+    }
+
+    public static void Print(List<List<int>> deepListOfNumbers) {
+        deepListOfNumbers.ForEach(diffList => Print(diffList));
+    }
 }
