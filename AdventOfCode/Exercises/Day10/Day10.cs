@@ -11,7 +11,7 @@ public class Day10 {
     private readonly Uri filePath = new(new Uri(AppDomain.CurrentDomain.BaseDirectory), "Exercises\\Day10\\Data.txt");
     private readonly char[,] tileMap;
     private readonly List<string> lines;
-    private List<Position> path = new();
+    private readonly List<Position> path = new();
     private readonly Position startPosition;
     private readonly int maxColum;
     private readonly int maxRow;
@@ -64,18 +64,19 @@ S is the starting position of the animal; there is a pipe on this tile, but your
             }
         }
 
-        //this.PrintMap();
-
-        this.startPosition = this.FindStartPosition();
         this.startPosition = this.FindStartPositionTileMap();
         this.maxRow = this.tileMap.GetLength(0);
         this.maxColum = this.tileMap.GetLength(1);
 
-        this.FindPathTileMap();
     }
 
     public void RunPart1() {
-        Console.WriteLine("RunPart1 to do");
+        this.FindPath();
+
+        var steps = this.path.Count / 2;
+
+        Console.WriteLine($"PART 1");
+        Console.WriteLine($"Number of steps is {steps}");
     }
 
     public void RunPart2() {
@@ -84,24 +85,6 @@ S is the starting position of the animal; there is a pipe on this tile, but your
 
 
     #region Helpers
-
-    /// <summary>
-    /// Find the start position in the map
-    /// </summary>
-    /// <returns></returns>
-    public Position FindStartPosition() {
-
-        // ln: 59, ch: 52
-        int column = 0;
-        for (int row = 0; row < this.lines.Count; row++) {
-            column = this.lines[row].IndexOf("S");
-            if (column > -1) {
-                return new Position(row, column);
-            }
-        }
-        return new Position(-1, -1);
-    }
-
     /// <summary>
     /// Find the start position in the map
     /// </summary>
@@ -120,9 +103,11 @@ S is the starting position of the animal; there is a pipe on this tile, but your
         return new Position(-1, -1);
     }
 
-    public void FindPathTileMap() {
+    /// <summary>
+    /// Find the path
+    /// </summary>
+    public void FindPath() {
 
-        // Start at the start position
         Position previousPosition = new(this.startPosition);
         Position currentPosition = new(this.startPosition);
         Position? nextPosition;
@@ -130,7 +115,7 @@ S is the starting position of the animal; there is a pipe on this tile, but your
         this.path.Add(this.startPosition);
 
         do {
-            nextPosition = this.GetNextPositionFromTileMap(currentPosition);
+            nextPosition = this.GetNextPosition(currentPosition);
             if (nextPosition != null) {
                 this.path.Add(nextPosition);
                 previousPosition.Update(currentPosition.Row, currentPosition.Column);
@@ -140,43 +125,15 @@ S is the starting position of the animal; there is a pipe on this tile, but your
 
         this.path.ForEach(position => Console.WriteLine($"Position: [{position.Row}, {position.Column}]"));
         this.PrintRoutedMap();
+
     }
 
-
-
-    public void FindPath() {
-
-        // At the start position look north, south, east west for two compatible
-        // Can do a parallel run of working from both sides of the start to make it quicker
-        var position = new Position(this.startPosition.Row, this.startPosition.Column);
-        var currentRow = this.startPosition.Row;
-        var currentColumn = this.startPosition.Column;
-
-        //List<Position> path1 = new();
-        //List<Position> path2 = new();
-
-        Position? nextPosition;
-        Position previousPosition = new Position(this.startPosition.Row, this.startPosition.Column);
-
-        do {
-
-            nextPosition = this.GetNextPosition(currentRow, currentColumn, previousPosition);
-            if (nextPosition != null) {
-                this.path.Add(nextPosition);
-                previousPosition.Update(currentRow, currentColumn);
-                currentRow = nextPosition.Row;
-                currentColumn = nextPosition.Column;
-            }
-            else {
-                break;
-            }
-        } while (nextPosition != null);
-
-        this.path.ForEach(position => Console.WriteLine($"Position: [{position.Row}, {position.Column}]"));
-        this.PrintRoutedMap();
-    }
-
-    private Position? GetNextPositionFromTileMap(Position currentPosition) {
+    /// <summary>
+    /// Get the next position 
+    /// </summary>
+    /// <param name="currentPosition"></param>
+    /// <returns></returns>
+    private Position? GetNextPosition(Position currentPosition) {
 
         var tile = this.tileMap[currentPosition.Row, currentPosition.Column];
         Position? nextPosition = null;
@@ -213,7 +170,11 @@ S is the starting position of the animal; there is a pipe on this tile, but your
         return nextPosition;
     }
 
-
+    /// <summary>
+    /// Check north tile is compatible
+    /// </summary>
+    /// <param name="currentPosition"></param>
+    /// <returns></returns>
     private Position? CheckNorthPosition(Position currentPosition) {
 
         // Check North
@@ -230,6 +191,12 @@ S is the starting position of the animal; there is a pipe on this tile, but your
         }
         return null;
     }
+
+    /// <summary>
+    /// Check south tile is compatible
+    /// </summary>
+    /// <param name="currentPosition"></param>
+    /// <returns></returns>
     private Position? CheckSouthPosition(Position currentPosition) {
 
         // Check South
@@ -247,8 +214,12 @@ S is the starting position of the animal; there is a pipe on this tile, but your
         return null;
     }
 
+    /// <summary>
+    /// Check east tile is compatible
+    /// </summary>
+    /// <param name="currentPosition"></param>
+    /// <returns></returns>
     private Position? CheckEastPosition(Position currentPosition) {
-        // Check East
         if (currentPosition.Column != this.maxColum) {
 
             var eastPosition = new Position(currentPosition.Row, currentPosition.Column + 1);
@@ -262,7 +233,12 @@ S is the starting position of the animal; there is a pipe on this tile, but your
         return null;
     }
 
-    private Position? CheckWestPosition(Position currentPosition) { 
+    /// <summary>
+    /// Check west tile is compatible
+    /// </summary>
+    /// <param name="currentPosition"></param>
+    /// <returns></returns>
+    private Position? CheckWestPosition(Position currentPosition) {
         // Check West
         if (currentPosition.Column is not 0) {
 
@@ -277,165 +253,6 @@ S is the starting position of the animal; there is a pipe on this tile, but your
 
         return null;
     }
-
-
-
-    private Position? GetNextPositionFromTileMap1(Position currentPosition, Position previousPosition) {
-
-        // Check North
-        if (currentPosition.Row is not 0) {
-
-            var northPosition = new Position(currentPosition.Row - 1, currentPosition.Column);
-            if (!this.path.Any(position => position.IsSame(northPosition))) {
-
-                var northTile = this.tileMap[currentPosition.Row - 1, currentPosition.Column];
-                if (CompatibleNorthTiles.Contains(northTile)) {
-                    return northPosition;
-                }
-            }
-        }
-
-        // Check South
-        if (currentPosition.Row != this.maxRow) {
-
-            var southPosition = new Position(currentPosition.Row + 1, currentPosition.Column);
-            if (!this.path.Any(position => position.IsSame(southPosition))) {
-                var southTile = this.tileMap[currentPosition.Row + 1, currentPosition.Column];
-                if (CompatibleSouthTiles.Contains(southTile)) {
-                    return southPosition;
-                }
-            }
-        }
-
-        // Check East
-        if (currentPosition.Column != this.maxColum) {
-
-            var eastPosition = new Position(currentPosition.Row, currentPosition.Column + 1);
-            if (!this.path.Any(position => position.IsSame(eastPosition))) {
-                var eastTile = this.tileMap[currentPosition.Row, currentPosition.Column + 1];
-                if (CompatibleEastTiles.Contains(eastTile)) {
-                    return eastPosition;
-                }
-            }
-        }
-
-        // Check West
-        if (currentPosition.Column is not 0) {
-
-            var westPosition = new Position(currentPosition.Row, currentPosition.Column - 1);
-            if (!this.path.Any(position => position.IsSame(westPosition))) {
-                var westTile = this.tileMap[currentPosition.Row, currentPosition.Column - 1];
-                if (CompatibleWestTiles.Contains(westTile)) {
-                    return westPosition;
-                }
-            }
-        }
-
-        return null;
-    }
-
-
-    private Position? GetNextPosition(int row, int column, Position previousPosition) {
-
-        // Check North
-        if (row is not 0) {
-
-            var northPosition = new Position(row - 1, column);
-            if (!previousPosition.IsSame(northPosition) & !northPosition.IsSame(this.startPosition)) {
-
-                var northTile = this.lines[row - 1][column];
-                if (CompatibleNorthTiles.Contains(northTile)) {
-                    return northPosition;
-                }
-            }
-        }
-
-        // Check South
-        if (row != this.maxRow) {
-
-            var southPosition = new Position(row + 1, column);
-            if (!previousPosition.IsSame(southPosition) & !southPosition.IsSame(this.startPosition)) {
-                var southTile = this.lines[row + 1][column];
-                if (CompatibleSouthTiles.Contains(southTile)) {
-                    return southPosition;
-                }
-            }
-        }
-
-        // Check East
-        if (column != this.maxColum) {
-
-            var eastPosition = new Position(row, column + 1);
-            if (!previousPosition.IsSame(eastPosition) & !eastPosition.IsSame(this.startPosition)) {
-                var eastTile = this.lines[row][column + 1];
-                if (CompatibleEastTiles.Contains(eastTile)) {
-                    return eastPosition;
-                }
-            }
-        }
-
-        // Check West
-        if (column is not 0) {
-
-            var westPosition = new Position(row, column - 1);
-            if (!previousPosition.IsSame(westPosition) & !westPosition.IsSame(this.startPosition)) {
-                var westTile = this.lines[row][column - 1];
-                if (CompatibleWestTiles.Contains(westTile)) {
-                    return westPosition;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    //private List<Position> AddToPath(int row, int column, List<Position> path, List<Position> checkPath) {
-
-    //    // Check North
-    //    if (row is not 0) {
-
-    //        var northPosition = new Position(row - 1, column);
-    //        var northTile = this.lines[row - 1][column];
-    //        if (this.IsStartPosition(northPosition)) {
-    //            return path;
-    //        }
-    //        if (CompatibleNorthTiles.Contains(northTile)) {
-    //            path.Add(northPosition);
-    //        }
-    //    }
-
-    //    // Check South
-    //    if (row != this.maxRow) {
-
-    //        var southPosition = new Position(row + 1, column);
-    //        var southTile = this.lines[row + 1][column];
-    //        if (CompatibleSouthTiles.Contains(southTile)) {
-    //            path.Add(southPosition);
-    //        }
-    //    }
-
-    //    // Check East
-    //    if (column != this.maxColum) {
-
-    //        var eastPosition = new Position(row, column + 1);
-    //        var eastTile = this.lines[row][column + 1];
-    //        if (CompatibleEastTiles.Contains(eastTile)) {
-    //            path.Add(eastPosition);
-    //        }
-    //    }
-
-    //    // Check West
-    //    if (column is not 0) {
-
-    //        var westPosition = new Position(row, column - 1);
-    //        var westTile = this.lines[row][column - 1];
-    //        if (CompatibleWestTiles.Contains(westTile)) {
-    //            path.Add(westPosition);
-    //        }
-    //    }
-
-    //    return path;
-    //}
 
     /// <summary>
     /// Print out the whole map
@@ -452,7 +269,6 @@ S is the starting position of the animal; there is a pipe on this tile, but your
 
 
         foreach (var position in this.path) {
-            var line = routedMap[position.Row];
             routedMap[position.Row] = routedMap[position.Row].Insert(position.Column, this.lines.ElementAt(position.Row).ElementAt(position.Column).ToString());
             routedMap.ElementAt(position.Row).Remove(position.Column);
         }
