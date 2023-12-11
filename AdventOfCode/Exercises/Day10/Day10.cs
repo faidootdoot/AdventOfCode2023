@@ -457,7 +457,6 @@ S is the starting position of the animal; there is a pipe on this tile, but your
             routedMap.ElementAt(position.Row).Remove(position.Column);
         }
 
-
         routedMap.ForEach(line => Console.WriteLine(line));
     }
     #endregion
