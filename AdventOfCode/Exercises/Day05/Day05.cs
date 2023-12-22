@@ -1,12 +1,5 @@
 ﻿
-using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static AdventOfCode.Exercises.Day01.Day01;
 
 namespace AdventOfCode.Exercises.Day05;
 public class Day05 {
@@ -20,12 +13,14 @@ public class Day05 {
     private List<Map> lightToTemperatureMap = new();
     private List<Map> temperatureToHumidityMap = new();
     private List<Map> humidityToLocationMap = new();
+    private readonly List<FullMap> fullMapList = new();
 
     public Day05() {
 
         var lines = File.ReadLines(this.filePath.AbsolutePath).ToList();
 
         this.ReadDataIntoMaps(lines);
+        //this.PopulateFullMap();
         this.OrderAllMaps();
     }
 
@@ -69,7 +64,45 @@ public class Day05 {
         Console.WriteLine($"Lowest location is {minimumLocation}");
     }
 
+    public void RunPart2_1() {
+
+        int index = 0;
+        long minimumLocation = this.GetLocationFromSeed(this.seeds[0]);
+        while (index < this.seeds.Count) {
+
+            var seedRangeStart = this.seeds[index];
+            var seedRangeLength = this.seeds[++index];
+            index++;
+
+            for (int i = 0; i < seedRangeLength; i++) {
+
+                var seed = seedRangeStart + i;
+                var location = this.GetLocationFromSeed(seed);
+                minimumLocation = location < minimumLocation ? location : minimumLocation;
+                Console.WriteLine($"{location}\t{minimumLocation}");
+            }
+        }
+
+        Console.WriteLine("PART 2");
+        Console.WriteLine($"Lowest location is {minimumLocation}");
+    }
+
     #region Helpers
+
+    private void PopulateFullMap() {
+
+        // Seed to soil
+        foreach (var mapData in this.seedToSoilMap) {
+
+            for (int i = 0; i < mapData.RangeLength; i++) {
+
+                this.fullMapList.Add(new FullMap() {
+                    SeedNumber = mapData.SourceRangeStart + i,
+                    SoilNumber = mapData.DestinationRangeStart + i,
+                });
+            }
+        }
+    }
 
     /// <summary>
     /// Read all the input data to lists
@@ -155,6 +188,19 @@ public class Day05 {
     /// <param name="seed"></param>
     /// <returns></returns>
     private long GetLocationFromSeed(long seed) {
+
+        var soil = this.GetDestinationFromMap(seed, this.seedToSoilMap);
+        var fertilizer = this.GetDestinationFromMap(soil, this.soilToFertilizerMap);
+        var water = this.GetDestinationFromMap(fertilizer, this.fertilizerToWaterMap);
+        var light = this.GetDestinationFromMap(water, this.waterToLightMap);
+        var temperature = this.GetDestinationFromMap(light, this.lightToTemperatureMap);
+        var humidity = this.GetDestinationFromMap(temperature, this.temperatureToHumidityMap);
+        var location = this.GetDestinationFromMap(humidity, this.humidityToLocationMap);
+
+        return location;
+    }
+
+    private long GetLocationFromSeed_Opt1(long seed) {
 
         var soil = this.GetDestinationFromMap(seed, this.seedToSoilMap);
         var fertilizer = this.GetDestinationFromMap(soil, this.soilToFertilizerMap);
